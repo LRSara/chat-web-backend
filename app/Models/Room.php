@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Room extends Model
+{
+    protected $fillable = [
+        'name',
+        'password',
+    ];
+
+    protected $hidden = [
+        'password',
+    ];
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    public function userSessions(): HasMany
+    {
+        return $this->hasMany(UserSession::class);
+    }
+
+    public function onlineUsers(): HasMany
+    {
+        return $this->userSessions()->whereNull('disconnected_at');
+    }
+}
