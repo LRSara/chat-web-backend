@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\MessageService;
 use App\Services\UploadService;
+use App\Events\MessageSent;
 use App\Models\Room;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -59,6 +60,8 @@ class MessageController extends Controller
         }
 
         $message = $this->messageService->store($roomId, $nick, $type, $content, $filePath);
+
+        broadcast(new MessageSent($message));
 
         return response()->json([
             'data' => $message,

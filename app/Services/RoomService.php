@@ -4,8 +4,6 @@ namespace App\Services;
 
 use App\Models\Room;
 use App\Models\UserSession;
-use App\Events\UserJoined;
-use App\Events\UserLeft;
 use Illuminate\Support\Facades\Hash;
 
 class RoomService
@@ -44,16 +42,11 @@ class RoomService
             abort(409, 'Usuário online já existente com esse nick, tente outro.');
         }
 
-        $session = UserSession::create([
+        return UserSession::create([
             'room_id' => $roomId,
             'nick' => $nick,
             'connected_at' => now(),
         ]);
-
-        $onlineUsers = $room->onlineUsers()->pluck('nick')->toArray();
-        broadcast(new UserJoined($roomId, $nick, $onlineUsers));
-
-        return $session;
     }
 
     public function leaveRoom(int $roomId, string $nick): void
@@ -64,9 +57,5 @@ class RoomService
             ->firstOrFail();
 
         $session->update(['disconnected_at' => now()]);
-
-        $room = Room::findOrFail($roomId);
-        $onlineUsers = $room->onlineUsers()->pluck('nick')->toArray();
-        broadcast(new UserLeft($roomId, $nick, $onlineUsers));
     }
 }

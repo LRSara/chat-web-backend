@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateRoomRequest;
 use App\Http\Requests\JoinRoomRequest;
 use App\Services\RoomService;
+use App\Events\UserJoined;
+use App\Events\UserLeft;
+use App\Models\Room;
 use Illuminate\Http\JsonResponse;
 
 class RoomController extends Controller
@@ -44,6 +47,10 @@ class RoomController extends Controller
             $request->validated('nick'),
         );
 
+        $room = Room::findOrFail($id);
+        $onlineUsers = $room->onlineUsers()->pluck('nick')->toArray();
+        broadcast(new UserJoined($id, $session->nick, $onlineUsers));
+
         return response()->json([
             'data' => $session,
             'message' => 'Entrou na sala com sucesso.',
@@ -53,6 +60,10 @@ class RoomController extends Controller
     public function leave(int $id, string $nick): JsonResponse
     {
         $this->roomService->leaveRoom($id, $nick);
+
+        $room = Room::findOrFail($id);
+        $onlineUsers = $room->onlineUsers()->pluck('nick')->toArray();
+        broadcast(new UserLeft($id, $nick, $onlineUsers));
 
         return response()->json([
             'message' => 'Saiu da sala com sucesso.',

@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Message;
-use App\Events\MessageSent;
 
 class MessageService
 {
@@ -11,7 +10,7 @@ class MessageService
     {
         $nick = mb_strtolower(trim($nick));
 
-        $message = Message::create([
+        return Message::create([
             'room_id' => $roomId,
             'nick' => $nick,
             'type' => $type,
@@ -19,10 +18,6 @@ class MessageService
             'file_path' => $filePath,
             'created_at' => now(),
         ]);
-
-        broadcast(new MessageSent($message));
-
-        return $message;
     }
 
     public function getHistory(int $roomId, int $perPage = 50, ?int $page = null)
