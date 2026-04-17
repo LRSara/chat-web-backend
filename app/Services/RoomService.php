@@ -33,6 +33,8 @@ class RoomService
             abort(403, 'Senha incorreta.');
         }
 
+        $nick = mb_strtolower(trim($nick));
+
         $existingSession = UserSession::where('room_id', $roomId)
             ->where('nick', $nick)
             ->whereNull('disconnected_at')

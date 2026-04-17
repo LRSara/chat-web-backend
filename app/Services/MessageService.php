@@ -9,6 +9,8 @@ class MessageService
 {
     public function store(int $roomId, string $nick, string $type, ?string $content = null, ?string $filePath = null): Message
     {
+        $nick = mb_strtolower(trim($nick));
+
         $message = Message::create([
             'room_id' => $roomId,
             'nick' => $nick,
